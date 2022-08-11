@@ -45,4 +45,7 @@ yarn.lock
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/shelf
+
 /nbproject/private/
+/nbproject/*
+
