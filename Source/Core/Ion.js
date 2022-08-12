@@ -6,6 +6,8 @@ let defaultTokenCredit;
 const defaultAccessToken =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyNDBiMjBhOS1jZWE5LTRmYWYtOGI3Yy05ZDg3ODBiZDZiZjUiLCJpZCI6MjU5LCJpYXQiOjE2NTkzNjE0MTJ9.tXPPvw93XpCGHG71h7s_mMLlWGCuAL55o8LC309hLAg";
 
+//"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmZkNDlmZC0yNTE5LTRkZDgtYjg5Mi1mOWIyYzE2MDkzY2EiLCJpZCI6MTAzOTMyLCJpYXQiOjE2NTk5MDQzNDJ9.sTSq7G3FqUiac85YZkwOIHEJtTMaSDkZCmlsgQdR_G0";
+
 /**
  * Default settings for accessing the Cesium ion API.
  *

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Use Viewer to start building new applications or easily embed Cesium into existing applications."
+    />
+    <meta name="cesium-sandcastle-labels" content="Beginner, Showcases" />
+    <title>Cesium Demo</title>
+    <script type="text/javascript" src="../Sandcastle-header.js"></script>
+    <script type="module" src="../load-cesium-es6.js"></script>
+  </head>
+  <body
+    class="sandcastle-loading"
+    data-sandcastle-bucket="bucket-requirejs.html"
+  >
+    <style>
+      @import url(../templates/bucket.css);
+    </style>
+    <div id="cesiumContainer" class="fullSize"></div>
+    <div id="loadingOverlay"><h1>Loading...</h1></div>
+    <div id="toolbar"></div>
+    <script id="cesium_sandcastle_script">
+      window.startup = function (Cesium) {
+        "use strict";
+        //Sandcastle_Begin
+
+        // Grant CesiumJS access to your ion assets
+        Cesium.Ion.defaultAccessToken =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmZkNDlmZC0yNTE5LTRkZDgtYjg5Mi1mOWIyYzE2MDkzY2EiLCJpZCI6MTAzOTMyLCJpYXQiOjE2NTk5MDQzNDJ9.sTSq7G3FqUiac85YZkwOIHEJtTMaSDkZCmlsgQdR_G0";
+
+        const viewer = new Cesium.Viewer("cesiumContainer");
+
+        const imageryLayer = viewer.imageryLayers.addImageryProvider(
+          new Cesium.IonImageryProvider({ assetId: 1252160 })
+        );
+
+        const dataSourceThewest = Cesium.GeoJsonDataSource.load(
+          "../../SampleData/thewest.geojson",
+          {
+            stroke: Cesium.Color.fromBytes(230, 255, 0, 20),
+            fill: Cesium.Color.fromBytes(230, 255, 0, 20),
+            strokeWidth: 3,
+            markerSymbol: "?",
+          }
+        );
+        viewer.dataSources.add(dataSourceThewest);
+
+        const dataSourceEeu = Cesium.GeoJsonDataSource.load(
+          "../../SampleData/eeu.geojson",
+          {
+            stroke: Cesium.Color.fromBytes(190, 0, 210, 45),
+            fill: Cesium.Color.fromBytes(190, 0, 210, 45),
+            strokeWidth: 3,
+            markerSymbol: "?",
+          }
+        );
+        viewer.dataSources.add(dataSourceEeu);
+
+        const dataSourceBricsplus = Cesium.GeoJsonDataSource.load(
+          "../../SampleData/bricsplus.geojson",
+          {
+            stroke: Cesium.Color.fromBytes(255, 100, 0, 40),
+            fill: Cesium.Color.fromBytes(255, 100, 0, 40),
+            strokeWidth: 3,
+            markerSymbol: "?",
+          }
+        );
+        viewer.dataSources.add(dataSourceBricsplus);
+
+        //viewer.zoomTo(dataSourceEeu);
+
+        (async () => {
+          try {
+            //const resourceThewest = await Cesium.IonResource.fromAssetId(1253475);
+            //const resourceEeu = await Cesium.IonResource.fromAssetId(1259309);
+            //const resourceBricsplus = await Cesium.IonResource.fromAssetId(1259319);
+            //const dataSourceThewest = await Cesium.GeoJsonDataSource.load(resourceThewest);
+            //const dataSourceEeu = await Cesium.GeoJsonDataSource.load(resourceEeu);
+            //const dataSourceBricsplus = await Cesium.GeoJsonDataSource.load(resourceBricsplus);
+            //await viewer.dataSources.add(dataSourceThewest);
+            //await viewer.dataSources.add(dataSourceEeu);
+            //await viewer.dataSources.add(dataSourceBricsplus);
+            //await viewer.zoomTo(dataSourceEeu);
+          } catch (error) {
+            console.log(error);
+          }
+        })();
+
+        //Sandcastle_End
+        Sandcastle.finishedLoading();
+      };
+
+      if (typeof Cesium !== "undefined") {
+        window.startupCalled = true;
+        window.startup(Cesium);
+      }
+    </script>
+  </body>
+</html>
