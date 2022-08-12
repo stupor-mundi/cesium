@@ -35,11 +35,17 @@
         Cesium.Ion.defaultAccessToken =
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmZkNDlmZC0yNTE5LTRkZDgtYjg5Mi1mOWIyYzE2MDkzY2EiLCJpZCI6MTAzOTMyLCJpYXQiOjE2NTk5MDQzNDJ9.sTSq7G3FqUiac85YZkwOIHEJtTMaSDkZCmlsgQdR_G0";
 
-        const viewer = new Cesium.Viewer("cesiumContainer");
+        //const viewer = new Cesium.Viewer("cesiumContainer");
+
+        const viewer = new Cesium.Viewer("cesiumContainer", {
+          terrainProvider: Cesium.createWorldTerrain(),
+        });
 
         const imageryLayer = viewer.imageryLayers.addImageryProvider(
           new Cesium.IonImageryProvider({ assetId: 1252160 })
         );
+
+        //imageryLayer.alpha = 0.75;
 
         const dataSourceThewest = Cesium.GeoJsonDataSource.load(
           "../../SampleData/thewest.geojson",
@@ -48,6 +54,7 @@
             fill: Cesium.Color.fromBytes(230, 255, 0, 20),
             strokeWidth: 3,
             markerSymbol: "?",
+            clampToGround: true,
           }
         );
         viewer.dataSources.add(dataSourceThewest);
@@ -59,6 +66,7 @@
             fill: Cesium.Color.fromBytes(190, 0, 210, 45),
             strokeWidth: 3,
             markerSymbol: "?",
+            clampToGround: true,
           }
         );
         viewer.dataSources.add(dataSourceEeu);
@@ -70,6 +78,7 @@
             fill: Cesium.Color.fromBytes(255, 100, 0, 40),
             strokeWidth: 3,
             markerSymbol: "?",
+            clampToGround: true,
           }
         );
         viewer.dataSources.add(dataSourceBricsplus);
