@@ -45,6 +45,8 @@
         scene.skyAtmosphere.show = false;
         scene.fog.enabled = false;
         scene.globe.showGroundAtmosphere = false;
+        scene.globe.enableLighting = true;
+        scene.sun = new Cesium.Sun();
 
 
         const imageryLayer = viewer.imageryLayers.addImageryProvider(
@@ -89,24 +91,35 @@
         );
         viewer.dataSources.add(dataSourceBricsplus);
 
-        //viewer.zoomTo(dataSourceEeu);
-
-        (async () => {
-          try {
-            //const resourceThewest = await Cesium.IonResource.fromAssetId(1253475);
-            //const resourceEeu = await Cesium.IonResource.fromAssetId(1259309);
-            //const resourceBricsplus = await Cesium.IonResource.fromAssetId(1259319);
-            //const dataSourceThewest = await Cesium.GeoJsonDataSource.load(resourceThewest);
-            //const dataSourceEeu = await Cesium.GeoJsonDataSource.load(resourceEeu);
-            //const dataSourceBricsplus = await Cesium.GeoJsonDataSource.load(resourceBricsplus);
-            //await viewer.dataSources.add(dataSourceThewest);
-            //await viewer.dataSources.add(dataSourceEeu);
-            //await viewer.dataSources.add(dataSourceBricsplus);
-            //await viewer.zoomTo(dataSourceEeu);
-          } catch (error) {
-            console.log(error);
+        const dataSourceTimezone = Cesium.GeoJsonDataSource.load(
+          "../../SampleData/timezone.geojson",
+          {
+            stroke: Cesium.Color.fromBytes(255, 255, 255, 25),
+            fill: Cesium.Color.fromBytes(255, 100, 0, 0),
+            strokeWidth: 3,
+            markerSymbol: "?",
+            clampToGround: false,
           }
-        })();
+        );
+        viewer.dataSources.add(dataSourceTimezone);
+
+
+        var promise = Cesium.GeoJsonDataSource.load('../../SampleData/ports.geojson');
+        promise.then(
+            function(dataSource) {
+                viewer.dataSources.add(dataSource);
+                var entities = dataSource.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.billboard = undefined;
+                    entity.point = new Cesium.PointGraphics({
+                           color: Cesium.Color.fromRandom(),
+                           pixelSize: 10});
+                }
+            }
+        );
+
+        //viewer.dataSources.add(dataSourcePorts);
 
         //Sandcastle_End
         Sandcastle.finishedLoading();
