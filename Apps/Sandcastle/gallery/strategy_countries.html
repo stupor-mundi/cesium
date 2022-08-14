@@ -127,9 +127,21 @@
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
                     entity.billboard = undefined;
-                    entity.point = new Cesium.PointGraphics({
-                           color: Cesium.Color.fromBytes(100, 100, 255, 50),
-                           pixelSize: 5});
+                    
+                    console.log(entity.properties.HARBORSIZE._value);
+                                        
+                    if(entity.properties.HARBORSIZE._value == "L") {
+                        entity.point = new Cesium.PointGraphics({
+                               color: Cesium.Color.fromBytes(100, 100, 255, 50),
+                               pixelSize: 9});
+                    } else {
+                        entity.point = new Cesium.PointGraphics({
+                               color: Cesium.Color.fromBytes(100, 100, 255, 50),
+                               pixelSize: 4});
+                    }
+                    
+                    
+                    
                 }
             }
         );
