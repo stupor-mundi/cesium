@@ -55,8 +55,9 @@
 
         //imageryLayer.alpha = 0.75;
 
+        // "../../SampleData/thewest.geojson",
         const dataSourceThewest = Cesium.GeoJsonDataSource.load(
-          "../../SampleData/thewest.geojson",
+          "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=thewest",
           {
             stroke: Cesium.Color.fromBytes(230, 255, 0, 10),
             fill: Cesium.Color.fromBytes(230, 255, 0, 20),
@@ -68,7 +69,7 @@
         viewer.dataSources.add(dataSourceThewest);
 
         const dataSourceEeu = Cesium.GeoJsonDataSource.load(
-          "../../SampleData/eeu.geojson",
+          "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=eeu",
           {
             stroke: Cesium.Color.fromBytes(190, 0, 210, 10),
             fill: Cesium.Color.fromBytes(190, 0, 210, 35),
@@ -80,7 +81,7 @@
         viewer.dataSources.add(dataSourceEeu);
 
         const dataSourceBricsplus = Cesium.GeoJsonDataSource.load(
-          "../../SampleData/bricsplus.geojson",
+          "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=bricsplus",
           {
             stroke: Cesium.Color.fromBytes(255, 100, 0, 10),
             fill: Cesium.Color.fromBytes(255, 100, 0, 25),
@@ -91,10 +92,22 @@
         );
         viewer.dataSources.add(dataSourceBricsplus);
 
+        const dataSourceResidence = Cesium.GeoJsonDataSource.load(
+          "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=residency",
+          {
+            stroke: Cesium.Color.fromBytes(255, 100, 0, 10),
+            fill: Cesium.Color.fromBytes(255, 255, 255, 80),
+            strokeWidth: 3,
+            markerSymbol: "?",
+            clampToGround: true,
+          }
+        );
+        viewer.dataSources.add(dataSourceResidence);
+
         const dataSourceTimezone = Cesium.GeoJsonDataSource.load(
           "../../SampleData/timezone.geojson",
           {
-            stroke: Cesium.Color.fromBytes(255, 255, 255, 25),
+            stroke: Cesium.Color.fromBytes(255, 255, 255, 20),
             fill: Cesium.Color.fromBytes(255, 100, 0, 0),
             strokeWidth: 3,
             markerSymbol: "?",
@@ -104,7 +117,9 @@
         viewer.dataSources.add(dataSourceTimezone);
 
 
-        var promise = Cesium.GeoJsonDataSource.load('../../SampleData/ports.geojson');
+        var promise = Cesium.GeoJsonDataSource.load(
+            "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=ports"
+        );
         promise.then(
             function(dataSource) {
                 viewer.dataSources.add(dataSource);
@@ -113,8 +128,8 @@
                     var entity = entities[i];
                     entity.billboard = undefined;
                     entity.point = new Cesium.PointGraphics({
-                           color: Cesium.Color.fromRandom(),
-                           pixelSize: 10});
+                           color: Cesium.Color.fromBytes(100, 100, 255, 50),
+                           pixelSize: 5});
                 }
             }
         );
