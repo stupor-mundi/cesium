@@ -61,7 +61,7 @@
           {
             stroke: Cesium.Color.fromBytes(230, 255, 0, 10),
             fill: Cesium.Color.fromBytes(230, 255, 0, 20),
-            strokeWidth: 3,
+            strokeWidth: 1,
             markerSymbol: "?",
             clampToGround: true,
           }
@@ -73,7 +73,7 @@
           {
             stroke: Cesium.Color.fromBytes(190, 0, 210, 10),
             fill: Cesium.Color.fromBytes(190, 0, 210, 35),
-            strokeWidth: 3,
+            strokeWidth: 1,
             markerSymbol: "?",
             clampToGround: true,
           }
@@ -85,7 +85,7 @@
           {
             stroke: Cesium.Color.fromBytes(255, 100, 0, 10),
             fill: Cesium.Color.fromBytes(255, 100, 0, 25),
-            strokeWidth: 3,
+            strokeWidth: 1,
             markerSymbol: "?",
             clampToGround: true,
           }
@@ -97,19 +97,20 @@
           {
             stroke: Cesium.Color.fromBytes(255, 100, 0, 10),
             fill: Cesium.Color.fromBytes(255, 255, 255, 80),
-            strokeWidth: 3,
+            strokeWidth: 1,
             markerSymbol: "?",
             clampToGround: true,
           }
         );
         viewer.dataSources.add(dataSourceResidence);
 
+
         const dataSourceTimezone = Cesium.GeoJsonDataSource.load(
           "../../SampleData/timezone.geojson",
           {
             stroke: Cesium.Color.fromBytes(255, 255, 255, 20),
             fill: Cesium.Color.fromBytes(255, 100, 0, 0),
-            strokeWidth: 3,
+            strokeWidth: 1,
             markerSymbol: "?",
             clampToGround: false,
           }
@@ -117,19 +118,38 @@
         viewer.dataSources.add(dataSourceTimezone);
 
 
-        var promise = Cesium.GeoJsonDataSource.load(
+
+
+
+        const promiseCompany = Cesium.GeoJsonDataSource.load(
+            "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=company"
+        );
+        promiseCompany.then(
+            function(dataSource) {
+                viewer.dataSources.add(dataSource);
+                var entities = dataSource.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.polygon.extrudedHeight = 3000;
+                    entity.polygon.outlineColor = Cesium.Color.fromBytes(255, 255, 255, 80);
+                    entity.polygon.outline = true;
+                    entity.polygon.fill = false;
+                }
+            }
+        );
+
+
+        const promisePorts = Cesium.GeoJsonDataSource.load(
             "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=ports"
         );
-        promise.then(
+        promisePorts.then(
             function(dataSource) {
                 viewer.dataSources.add(dataSource);
                 var entities = dataSource.entities.values;
                 for (var i = 0; i < entities.length; i++) {
                     var entity = entities[i];
                     entity.billboard = undefined;
-                    
-                    console.log(entity.properties.HARBORSIZE._value);
-                                        
+                    //console.log(entity.properties.HARBORSIZE._value);                                        
                     if(entity.properties.HARBORSIZE._value == "L") {
                         entity.point = new Cesium.PointGraphics({
                                color: Cesium.Color.fromBytes(100, 100, 255, 50),
@@ -139,8 +159,24 @@
                                color: Cesium.Color.fromBytes(100, 100, 255, 50),
                                pixelSize: 4});
                     }
-                    
-                    
+                }
+            }
+        );
+
+
+        const promiseAirports = Cesium.GeoJsonDataSource.load(
+            "../../SampleData/airports.geojson"
+        );
+        promiseAirports.then(
+            function(dataSource) {
+                viewer.dataSources.add(dataSource);
+                var entities = dataSource.entities.values;
+                for (var i = 0; i < entities.length; i++) {
+                    var entity = entities[i];
+                    entity.billboard = undefined;                    
+                    entity.point = new Cesium.PointGraphics({
+                           color: Cesium.Color.fromBytes(255, 150, 80, 80),
+                           pixelSize: 5});
                     
                 }
             }
