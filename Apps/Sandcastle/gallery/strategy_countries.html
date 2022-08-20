@@ -39,6 +39,15 @@
 
         const viewer = new Cesium.Viewer("cesiumContainer", {
           terrainProvider: Cesium.createWorldTerrain(),
+          timeline: false,
+          animation: false,
+          baseLayerPicker: false,
+          vrButton: false,
+          geocoder: false,
+          homeButton: false,
+          navigationHelpButton: false,
+          sceneModePicker: false
+          
         });
 
         var scene = viewer.scene;
@@ -49,13 +58,16 @@
         scene.sun = new Cesium.Sun();
 
 
+//        const imageryLayer = viewer.imageryLayers.addImageryProvider(
+//          new Cesium.IonImageryProvider({ assetId: 1262026 })
+//        );
+
         const imageryLayer = viewer.imageryLayers.addImageryProvider(
-          new Cesium.IonImageryProvider({ assetId: 1262026 })
+          new Cesium.IonImageryProvider({ assetId: 1272606 })
         );
 
         //imageryLayer.alpha = 0.75;
 
-        // "../../SampleData/thewest.geojson",
         const dataSourceThewest = Cesium.GeoJsonDataSource.load(
           "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=thewest",
           {
@@ -66,7 +78,6 @@
             clampToGround: true,
           }
         );
-        viewer.dataSources.add(dataSourceThewest);
 
         const dataSourceEeu = Cesium.GeoJsonDataSource.load(
           "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=eeu",
@@ -78,7 +89,6 @@
             clampToGround: true,
           }
         );
-        viewer.dataSources.add(dataSourceEeu);
 
         const dataSourceBricsplus = Cesium.GeoJsonDataSource.load(
           "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=bricsplus",
@@ -90,7 +100,6 @@
             clampToGround: true,
           }
         );
-        viewer.dataSources.add(dataSourceBricsplus);
 
         const dataSourceResidence = Cesium.GeoJsonDataSource.load(
           "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=residency",
@@ -102,8 +111,6 @@
             clampToGround: true,
           }
         );
-        viewer.dataSources.add(dataSourceResidence);
-
 
         const dataSourceTimezone = Cesium.GeoJsonDataSource.load(
           "../../SampleData/timezone.geojson",
@@ -115,9 +122,26 @@
             clampToGround: false,
           }
         );
-        viewer.dataSources.add(dataSourceTimezone);
 
-
+        (async () => {
+          try {
+            //const resourceThewest = await Cesium.IonResource.fromAssetId(1253475);
+            //const resourceEeu = await Cesium.IonResource.fromAssetId(1259309);
+            //const resourceBricsplus = await Cesium.IonResource.fromAssetId(1259319);
+              
+            // "../../SampleData/thewest.geojson",            
+            await viewer.dataSources.add(dataSourceThewest);
+            await viewer.dataSources.add(dataSourceEeu);
+            await viewer.dataSources.add(dataSourceBricsplus);
+            await viewer.dataSources.add(dataSourceResidence);
+            await viewer.dataSources.add(dataSourceTimezone);
+            
+            //await viewer.zoomTo(dataSourceEeu);
+            
+          } catch (error) {
+            console.log(error);
+          }
+        })();
 
 
 
@@ -137,7 +161,6 @@
                 }
             }
         );
-
 
         const promisePorts = Cesium.GeoJsonDataSource.load(
             "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=ports"
@@ -163,7 +186,6 @@
             }
         );
 
-
         const promiseAirports = Cesium.GeoJsonDataSource.load(
             "../../SampleData/airports.geojson"
         );
@@ -181,8 +203,6 @@
                 }
             }
         );
-
-        //viewer.dataSources.add(dataSourcePorts);
 
         //Sandcastle_End
         Sandcastle.finishedLoading();
