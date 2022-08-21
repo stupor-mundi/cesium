@@ -32,14 +32,14 @@
           <tr>
             <td>Base</td>
             <td>
-              <select data-bind="options: baseLayer, value: baseLayer"></select>
+              <select data-bind="options: imageryNames, value: imageryName"></select>
             </td>
           </tr>
           <tr>
-            <td>Alpha</td>
+            <td>Brightness</td>
             <td>
-              <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: alpha, valueUpdate: 'input'">
-              <input type="text" size="5" data-bind="value: alpha">
+              <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: brightness, valueUpdate: 'input'">
+              <input type="text" size="5" data-bind="value: brightness">
             </td>
           </tr>
         </tbody>
@@ -57,8 +57,6 @@
         Cesium.Ion.defaultAccessToken =
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmZkNDlmZC0yNTE5LTRkZDgtYjg5Mi1mOWIyYzE2MDkzY2EiLCJpZCI6MTAzOTMyLCJpYXQiOjE2NTk5MDQzNDJ9.sTSq7G3FqUiac85YZkwOIHEJtTMaSDkZCmlsgQdR_G0";
 
-        //const viewer = new Cesium.Viewer("cesiumContainer");
-
         const viewer = new Cesium.Viewer("cesiumContainer", {
           terrainProvider: Cesium.createWorldTerrain({requestVertexNormals: true, requestWaterMask: true}),
           timeline: false,
@@ -72,6 +70,73 @@
           
         });
 
+        const imageryLayerPop = viewer.imageryLayers.addImageryProvider(
+          new Cesium.IonImageryProvider({ assetId: 1262026 })
+        );
+
+        const imageryLayerNatEarth = viewer.imageryLayers.addImageryProvider(
+          new Cesium.IonImageryProvider({ assetId: 1272606 })
+        );
+
+
+
+        function setBaseImagery(value) {
+            if(value == "population") {
+                viewer.imageryLayers.raiseToTop(imageryLayerPop);
+            } else {
+                viewer.imageryLayers.raiseToTop(imageryLayerNatEarth);
+            }
+            //console.log(viewer.imageryLayers);
+            return value;
+        }
+
+        function setBrightness(value,imageryName) {
+            console.log(imageryName);
+            
+            if(imageryName == "population") {
+                imageryLayerPop.brightness = value;
+            } else {
+                imageryLayerNatEarth.brightness = value;
+            }
+            
+            console.log(viewer.imageryLayers.indexOf(imageryLayerPop));
+            console.log(viewer.imageryLayers.indexOf(imageryLayerNatEarth));
+         
+            return value;
+        }
+
+        // The viewModel tracks the state of our mini application.
+        const viewModel = {
+          imageryName: "naturalearth",
+          imageryNames: ["population", "naturalearth"],
+          brightness: 1.0
+        };      
+
+        // Convert the viewModel members into knockout observables.
+        Cesium.knockout.track(viewModel);
+
+        // Bind the viewModel to the DOM elements of the UI that call for it.
+        const toolbar = document.getElementById("toolbar");
+        Cesium.knockout.applyBindings(viewModel, toolbar);
+
+        Cesium.knockout
+          .getObservable(viewModel, "imageryName")
+          .subscribe(function (newValue) {
+            const imgN = setBaseImagery(newValue);
+            //entity.model.imageryName = newValue;
+          });
+
+
+        Cesium.knockout
+          .getObservable(viewModel, "brightness")
+          .subscribe(function (newValue) {
+            const imgN = setBrightness(newValue,viewModel.imageryName);
+            //entity.model.color = getAlpha(viewModel.color, newValue);
+          });
+
+
+
+
         var scene = viewer.scene;
         scene.skyAtmosphere.show = false;
         scene.fog.enabled = false;
@@ -83,24 +148,14 @@
         
         scene.light = new Cesium.DirectionalLight({
             direction: Cesium.Cartesian3.UNIT_X,
-            intensity: 0.2
+            intensity: 0.8
         });
 
         var portsDataSource;
         var airportsDataSource;
-        
-        
 
 
-//        const imageryLayer = viewer.imageryLayers.addImageryProvider(
-//          new Cesium.IonImageryProvider({ assetId: 1262026 })
-//        );
-
-        const imageryLayer = viewer.imageryLayers.addImageryProvider(
-          new Cesium.IonImageryProvider({ assetId: 1272606 })
-        );
-
-        //imageryLayer.alpha = 0.75;
+        //imageryLayerNatEarth.alpha = 0.25;
 
         const dataSourceThewest = Cesium.GeoJsonDataSource.load(
           "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=thewest",
@@ -171,8 +226,6 @@
             console.log(error);
           }
         })();
-
-
 
         const promiseCompany = Cesium.GeoJsonDataSource.load(
             "http://localhost:8081/cgi-bin/qgis_mapserv.fcgi.exe?SERVICE=WFS&REQUEST=GetFeature&OUTPUTFORMAT=geojson&TYPENAME=company"
@@ -248,6 +301,11 @@
         //Sandcastle_End
         Sandcastle.finishedLoading();
       };
+      
+      
+      
+      
+
 
       if (typeof Cesium !== "undefined") {
         window.startupCalled = true;
