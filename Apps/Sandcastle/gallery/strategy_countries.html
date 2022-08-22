@@ -160,7 +160,7 @@
         
         scene.light = new Cesium.DirectionalLight({
             direction: Cesium.Cartesian3.UNIT_X,
-            intensity: 0.8
+            intensity: 0.6
         });
 
         var portsDataSource;
@@ -233,7 +233,8 @@
             await viewer.dataSources.add(dataSourceResidence);
             await viewer.dataSources.add(dataSourceTimezone);
             
-            //await viewer.zoomTo(dataSourceEeu);
+            await viewer.zoomTo(imageryLayerNatEarth);
+            
           } catch (error) {
             console.log(error);
           }
@@ -311,22 +312,15 @@
         });
 
 
-        console.log("b4camevents");
-        let removeEnd;
-        const camera = viewer.camera;            
-        removeEnd = camera.changed.addEventListener(function () {
-            
-          console.log("direction "+ camera.direction);
-          
-          
-          scene.light.direction = camera.direction;
-            
-          //console.log("camheading "+ camera.heading);
-          //console.log("campitch "+ camera.pitch);
-          //console.log("camroll "+ camera.roll);
-          //console.log("transform "+ camera.transform);
-        });
-        
+//        let changed;
+//        const camera = viewer.camera;            
+//        changed = camera.changed.addEventListener(function () {
+//          console.log("direction "+ camera.direction);
+//        });
+
+        const camera = viewer.camera;
+        scene.light.direction = camera.direction;
+
         
 
         //Sandcastle_End
