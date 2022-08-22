@@ -36,10 +36,10 @@
             </td>
           </tr>
           <tr>
-            <td>Brightness</td>
+            <td>Weight</td>
             <td>
-              <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: brightness, valueUpdate: 'input'">
-              <input type="text" size="5" data-bind="value: brightness">
+              <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: weight, valueUpdate: 'input'">
+              <input type="text" size="5" data-bind="value: weight">
             </td>
           </tr>
         </tbody>
@@ -86,22 +86,34 @@
             } else {
                 viewer.imageryLayers.raiseToTop(imageryLayerNatEarth);
             }
-            //console.log(viewer.imageryLayers);
             return value;
         }
 
-        function setBrightness(value,imageryName) {
-            console.log(imageryName);
+        function setWeight(value,imageryName) {
             
             if(imageryName == "population") {
-                imageryLayerPop.brightness = value;
+                var con = value;
+                var gam = 2.8 - value;
+                
+                //console.log("con "+ con);
+                //console.log("gam "+ gam);
+                
+                imageryLayerPop.contrast = con;
+                imageryLayerPop.gamma = gam;
+                
             } else {
-                imageryLayerNatEarth.brightness = value;
-            }
-            
-            console.log(viewer.imageryLayers.indexOf(imageryLayerPop));
-            console.log(viewer.imageryLayers.indexOf(imageryLayerNatEarth));
-         
+                var bri = 2.2 - (value*1.7);
+                var con = (value - 0.2)*2 + 0.4;
+                var gam = 1.5 - value;
+                
+                //console.log("bri "+ bri);
+                //console.log("con "+ con);
+                //console.log("gam "+ gam);
+                
+                imageryLayerNatEarth.brightness = bri;
+                imageryLayerNatEarth.contrast = con;
+                imageryLayerNatEarth.gamma = gam;
+            }         
             return value;
         }
 
@@ -109,7 +121,7 @@
         const viewModel = {
           imageryName: "naturalearth",
           imageryNames: ["population", "naturalearth"],
-          brightness: 1.0
+          weight: 0.7
         };      
 
         // Convert the viewModel members into knockout observables.
@@ -128,9 +140,9 @@
 
 
         Cesium.knockout
-          .getObservable(viewModel, "brightness")
+          .getObservable(viewModel, "weight")
           .subscribe(function (newValue) {
-            const imgN = setBrightness(newValue,viewModel.imageryName);
+            const imgN = setWeight(newValue,viewModel.imageryName);
             //entity.model.color = getAlpha(viewModel.color, newValue);
           });
 
@@ -297,6 +309,25 @@
                 viewer.dataSources.remove(portsDataSource);
             }
         });
+
+
+        console.log("b4camevents");
+        let removeEnd;
+        const camera = viewer.camera;            
+        removeEnd = camera.changed.addEventListener(function () {
+            
+          console.log("direction "+ camera.direction);
+          
+          
+          scene.light.direction = camera.direction;
+            
+          //console.log("camheading "+ camera.heading);
+          //console.log("campitch "+ camera.pitch);
+          //console.log("camroll "+ camera.roll);
+          //console.log("transform "+ camera.transform);
+        });
+        
+        
 
         //Sandcastle_End
         Sandcastle.finishedLoading();
