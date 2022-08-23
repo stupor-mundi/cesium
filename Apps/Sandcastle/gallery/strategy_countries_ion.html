@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Use Viewer to start building new applications or easily embed Cesium into existing applications."
+    />
+    <meta name="cesium-sandcastle-labels" content="Beginner, Showcases" />
+    <title>Cesium Demo</title>
+    <script type="text/javascript" src="../Sandcastle-header.js"></script>
+    <script type="module" src="../load-cesium-es6.js"></script>
+  </head>
+  <body
+    class="sandcastle-loading"
+    data-sandcastle-bucket="bucket-requirejs.html"
+  >
+    <style>
+      @import url(../templates/bucket.css);
+    </style>
+    <div id="cesiumContainer" class="fullSize"></div>
+    <div id="loadingOverlay"><h1>Loading...</h1></div>
+    
+    <div id="toolbar">
+      <table>
+        <tbody>
+          <tr>
+            <td>Base</td>
+            <td>
+              <select data-bind="options: imageryNames, value: imageryName"></select>
+            </td>
+          </tr>
+          <tr>
+            <td>Weight</td>
+            <td>
+              <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: weight, valueUpdate: 'input'">
+              <input type="text" size="5" data-bind="value: weight">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    
+    
+    <script id="cesium_sandcastle_script">
+      window.startup = function (Cesium) {
+        "use strict";
+        //Sandcastle_Begin
+
+        // Grant CesiumJS access to your ion assets
+        Cesium.Ion.defaultAccessToken =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmZkNDlmZC0yNTE5LTRkZDgtYjg5Mi1mOWIyYzE2MDkzY2EiLCJpZCI6MTAzOTMyLCJpYXQiOjE2NTk5MDQzNDJ9.sTSq7G3FqUiac85YZkwOIHEJtTMaSDkZCmlsgQdR_G0";
+
+        const viewer = new Cesium.Viewer("cesiumContainer", {
+          terrainProvider: Cesium.createWorldTerrain({requestVertexNormals: true, requestWaterMask: true}),
+          timeline: false,
+          animation: false,
+          baseLayerPicker: false,
+          vrButton: false,
+          geocoder: false,
+          homeButton: false,
+          navigationHelpButton: false,
+          sceneModePicker: false
+          
+        });
+
+        const imageryLayerPop = viewer.imageryLayers.addImageryProvider(
+          new Cesium.IonImageryProvider({ assetId: 1262026 })
+        );
+
+        const imageryLayerNatEarth = viewer.imageryLayers.addImageryProvider(
+          new Cesium.IonImageryProvider({ assetId: 1272606 })
+        );
+
+
+
+        function setBaseImagery(value) {
+            if(value == "population") {
+                viewer.imageryLayers.raiseToTop(imageryLayerPop);
+            } else {
+                viewer.imageryLayers.raiseToTop(imageryLayerNatEarth);
+            }
+            return value;
+        }
+
+        function setWeight(value,imageryName) {
+            
+            if(imageryName == "population") {
+                var con = value;
+                var gam = 2.8 - value;
+                
+                //console.log("con "+ con);
+                //console.log("gam "+ gam);
+                
+                imageryLayerPop.contrast = con;
+                imageryLayerPop.gamma = gam;
+                
+            } else {
+                var bri = 2.2 - (value*1.7);
+                var con = (value - 0.2)*2 + 0.4;
+                var gam = 1.5 - value;
+                
+                //console.log("bri "+ bri);
+                //console.log("con "+ con);
+                //console.log("gam "+ gam);
+                
+                imageryLayerNatEarth.brightness = bri;
+                imageryLayerNatEarth.contrast = con;
+                imageryLayerNatEarth.gamma = gam;
+            }         
+            return value;
+        }
+
+        // The viewModel tracks the state of our mini application.
+        const viewModel = {
+          imageryName: "naturalearth",
+          imageryNames: ["population", "naturalearth"],
+          weight: 0.7
+        };      
+
+        // Convert the viewModel members into knockout observables.
+        Cesium.knockout.track(viewModel);
+
+        // Bind the viewModel to the DOM elements of the UI that call for it.
+        const toolbar = document.getElementById("toolbar");
+        Cesium.knockout.applyBindings(viewModel, toolbar);
+
+        Cesium.knockout
+          .getObservable(viewModel, "imageryName")
+          .subscribe(function (newValue) {
+            const imgN = setBaseImagery(newValue);
+            //entity.model.imageryName = newValue;
+          });
+
+
+        Cesium.knockout
+          .getObservable(viewModel, "weight")
+          .subscribe(function (newValue) {
+            const imgN = setWeight(newValue,viewModel.imageryName);
+            //entity.model.color = getAlpha(viewModel.color, newValue);
+          });
+
+
+        var scene = viewer.scene;
+        scene.skyAtmosphere.show = false;
+        scene.fog.enabled = false;
+        scene.globe.showGroundAtmosphere = false;
+        scene.globe.enableLighting = true;
+        //scene.sun = new Cesium.Sun();
+        //scene.light.intensity = 0.5;
+        
+        scene.light = new Cesium.DirectionalLight({
+            direction: Cesium.Cartesian3.UNIT_X,
+            intensity: 0.6
+        });
+
+        var portsDataSource;
+        var airportsDataSource;
+
+        //imageryLayerNatEarth.alpha = 0.25;
+
+        (async () => {
+          try {
+            
+            const resourceThewest = await Cesium.IonResource.fromAssetId(1253475);
+            const dataSourceThewest = await Cesium.GeoJsonDataSource.load(
+                    resourceThewest,
+                    {
+                      stroke: Cesium.Color.fromBytes(230, 255, 0, 10),
+                      fill: Cesium.Color.fromBytes(230, 255, 0, 20),
+                      strokeWidth: 1,
+                      markerSymbol: "?",
+                      clampToGround: true,
+                    }
+                );
+
+            const resourceEeu = await Cesium.IonResource.fromAssetId(1259309);
+            const dataSourceEeu = await Cesium.GeoJsonDataSource.load(
+                    resourceEeu,
+                    {
+                      stroke: Cesium.Color.fromBytes(190, 0, 210, 10),
+                      fill: Cesium.Color.fromBytes(190, 0, 210, 35),
+                      strokeWidth: 1,
+                      markerSymbol: "?",
+                      clampToGround: true,
+                    }
+                );
+            
+            const resourceBricsplus = await Cesium.IonResource.fromAssetId(1259319);
+            const dataSourceBricsplus = await Cesium.GeoJsonDataSource.load(
+                    resourceBricsplus,
+                    {
+                      stroke: Cesium.Color.fromBytes(255, 100, 0, 10),
+                      fill: Cesium.Color.fromBytes(255, 100, 0, 25),
+                      strokeWidth: 1,
+                      markerSymbol: "?",
+                      clampToGround: true,
+                    }
+                );
+              
+            const resourceResidence = await Cesium.IonResource.fromAssetId(1278410);
+            const dataSourceResidence = await Cesium.GeoJsonDataSource.load(
+                    resourceResidence,
+                    {
+                      stroke: Cesium.Color.fromBytes(255, 100, 0, 10),
+                      fill: Cesium.Color.fromBytes(255, 255, 255, 80),
+                      strokeWidth: 1,
+                      markerSymbol: "?",
+                      clampToGround: true,
+                    }
+                );
+
+            const resourceTimezone = await Cesium.IonResource.fromAssetId(1278426);
+            const dataSourceTimezone = await Cesium.GeoJsonDataSource.load(
+                    resourceTimezone,
+                    {
+                      stroke: Cesium.Color.fromBytes(255, 255, 255, 20),
+                      fill: Cesium.Color.fromBytes(255, 100, 0, 0),
+                      strokeWidth: 1,
+                      markerSymbol: "?",
+                      clampToGround: false,
+                    }
+                );        
+
+            
+            await viewer.dataSources.add(dataSourceThewest);
+            await viewer.dataSources.add(dataSourceEeu);
+            await viewer.dataSources.add(dataSourceBricsplus);
+            await viewer.dataSources.add(dataSourceResidence);
+            await viewer.dataSources.add(dataSourceTimezone);
+
+            const resourceCompany = await Cesium.IonResource.fromAssetId(1278445);
+            const promiseCompany = Cesium.GeoJsonDataSource.load(
+                    resourceCompany
+                );
+            promiseCompany.then(
+                function(dataSource) {
+                    viewer.dataSources.add(dataSource);
+                    var entities = dataSource.entities.values;
+                    for (var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        entity.polygon.extrudedHeight = 3000;
+                        entity.polygon.outlineColor = Cesium.Color.fromBytes(255, 255, 255, 80);
+                        entity.polygon.outline = true;
+                        entity.polygon.fill = false;
+                    }
+                }
+            );
+        
+            const resourcePorts = await Cesium.IonResource.fromAssetId(1278458);
+            const promisePorts = Cesium.GeoJsonDataSource.load(
+                    resourcePorts
+                );
+            promisePorts.then(
+                function(dataSource) {
+                    var entities = dataSource.entities.values;
+                    for (var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        entity.billboard = undefined;
+                        if(entity.properties.HARBORSIZE._value == "L") {
+                            entity.point = new Cesium.PointGraphics({
+                                   color: Cesium.Color.fromBytes(100, 100, 255, 50),
+                                   pixelSize: 9});
+                        } else {
+                            entity.point = new Cesium.PointGraphics({
+                                   color: Cesium.Color.fromBytes(100, 100, 255, 50),
+                                   pixelSize: 4});
+                        }
+                    }
+                    portsDataSource = dataSource;
+                }
+            );
+        
+            const resourceAirports = await Cesium.IonResource.fromAssetId(1278468);
+            const promiseAirports = Cesium.GeoJsonDataSource.load(
+                    resourceAirports
+                );
+            promiseAirports.then(
+                function(dataSource) {
+                    var entities = dataSource.entities.values;
+                    for (var i = 0; i < entities.length; i++) {
+                        var entity = entities[i];
+                        entity.billboard = undefined;                    
+                        entity.point = new Cesium.PointGraphics({
+                               color: Cesium.Color.fromBytes(255, 150, 80, 80),
+                               pixelSize: 5});
+
+                    }
+                    airportsDataSource = dataSource;
+                }
+            );
+        
+            
+            
+            await viewer.zoomTo(imageryLayerNatEarth);
+            
+          } catch (error) {
+            console.log(error);
+          }
+        })();
+
+
+        Sandcastle.addToggleButton("Point layers", false, function (
+          checked
+        ) {
+            if(checked) {
+                viewer.dataSources.add(airportsDataSource);
+                viewer.dataSources.add(portsDataSource);
+            } else {
+                viewer.dataSources.remove(airportsDataSource);
+                viewer.dataSources.remove(portsDataSource);
+            }
+        });
+
+
+//        let changed;
+//        const camera = viewer.camera;            
+//        changed = camera.changed.addEventListener(function () {
+//          console.log("direction "+ camera.direction);
+//        });
+
+        const camera = viewer.camera;
+        scene.light.direction = camera.direction;
+
+        
+
+        //Sandcastle_End
+        Sandcastle.finishedLoading();
+      };
+      
+
+
+      if (typeof Cesium !== "undefined") {
+        window.startupCalled = true;
+        window.startup(Cesium);
+      }
+    </script>
+  </body>
+</html>
