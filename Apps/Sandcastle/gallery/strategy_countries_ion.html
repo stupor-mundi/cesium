@@ -36,10 +36,17 @@
             </td>
           </tr>
           <tr>
-            <td>Weight</td>
+            <td>BackgroundWeight</td>
             <td>
               <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: weight, valueUpdate: 'input'">
               <input type="text" size="5" data-bind="value: weight">
+            </td>
+          </tr>
+          <tr>
+            <td>PoliticsWeight</td>
+            <td>
+              <input type="range" min="0.0" max="1.0" step="0.01" data-bind="value: politicsweight, valueUpdate: 'input'">
+              <input type="text" size="5" data-bind="value: politicsweight">
             </td>
           </tr>
         </tbody>
@@ -53,12 +60,12 @@
         "use strict";
         //Sandcastle_Begin
 
-        // Grant CesiumJS access to your ion assets
-        Cesium.Ion.defaultAccessToken =
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3MmZkNDlmZC0yNTE5LTRkZDgtYjg5Mi1mOWIyYzE2MDkzY2EiLCJpZCI6MTAzOTMyLCJpYXQiOjE2NTk5MDQzNDJ9.sTSq7G3FqUiac85YZkwOIHEJtTMaSDkZCmlsgQdR_G0";
 
         const viewer = new Cesium.Viewer("cesiumContainer", {
-          terrainProvider: Cesium.createWorldTerrain({requestVertexNormals: true, requestWaterMask: true}),
+          terrainProvider: Cesium.createWorldTerrain({
+              requestVertexNormals: true 
+              ,requestWaterMask: true
+          }),
           timeline: false,
           animation: false,
           baseLayerPicker: false,
@@ -121,7 +128,8 @@
         const viewModel = {
           imageryName: "naturalearth",
           imageryNames: ["population", "naturalearth"],
-          weight: 0.7
+          weight: 0.7,
+          politicsweight: 1
         };      
 
         // Convert the viewModel members into knockout observables.
@@ -146,6 +154,13 @@
             //entity.model.color = getAlpha(viewModel.color, newValue);
           });
 
+        Cesium.knockout
+          .getObservable(viewModel, "politicsweight")
+          .subscribe(function (newValue) {
+            const imgN = setPoliticsWeight(newValue);
+            //entity.model.color = getAlpha(viewModel.color, newValue);
+          });
+
 
         var scene = viewer.scene;
         scene.skyAtmosphere.show = false;
@@ -162,14 +177,25 @@
 
         var portsDataSource;
         var airportsDataSource;
+        var dataSourceThewest;
+        var dataSourceEeu;
+        var dataSourceBricsplus;
+
+
+        function setPoliticsWeight(value) {
+            dataSourceThewest.contrast = value;
+        }
+
+
 
         //imageryLayerNatEarth.alpha = 0.25;
+        
 
         (async () => {
           try {
             
             const resourceThewest = await Cesium.IonResource.fromAssetId(1253475);
-            const dataSourceThewest = await Cesium.GeoJsonDataSource.load(
+            dataSourceThewest = await Cesium.GeoJsonDataSource.load(
                     resourceThewest,
                     {
                       stroke: Cesium.Color.fromBytes(230, 255, 0, 10),
@@ -181,7 +207,7 @@
                 );
 
             const resourceEeu = await Cesium.IonResource.fromAssetId(1259309);
-            const dataSourceEeu = await Cesium.GeoJsonDataSource.load(
+            dataSourceEeu = await Cesium.GeoJsonDataSource.load(
                     resourceEeu,
                     {
                       stroke: Cesium.Color.fromBytes(190, 0, 210, 10),
@@ -193,7 +219,7 @@
                 );
             
             const resourceBricsplus = await Cesium.IonResource.fromAssetId(1259319);
-            const dataSourceBricsplus = await Cesium.GeoJsonDataSource.load(
+            dataSourceBricsplus = await Cesium.GeoJsonDataSource.load(
                     resourceBricsplus,
                     {
                       stroke: Cesium.Color.fromBytes(255, 100, 0, 10),
